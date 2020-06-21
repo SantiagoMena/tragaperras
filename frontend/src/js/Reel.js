@@ -16,7 +16,7 @@ export default class Reel {
         {
           transform: `translateY(-${
             ((Math.floor(this.factor) * 10) /
-              (4 + Math.floor(this.factor) * 10)) *
+              (3 + Math.floor(this.factor) * 10)) *
             100
           }%)`,
           filter: "blur(0)",
@@ -41,7 +41,7 @@ export default class Reel {
   renderSymbols(nextSymbols) {
     const fragment = document.createDocumentFragment();
 
-    for (let i = 5; i < 5 + Math.floor(this.factor) * 10; i++) {
+    for (let i = 3; i < 3 + Math.floor(this.factor) * 10; i++) {
       const icon = new Symbol(
         i >= 10 * Math.floor(this.factor) - 2
           ? nextSymbols[i - Math.floor(this.factor) * 10]
@@ -66,7 +66,7 @@ export default class Reel {
     return Promise.race([animationPromise, timeoutPromise]).then(() => {
       if (this.animation.playState !== "finished") this.animation.finish();
 
-      const max = this.symbolContainer.children.length - 4;
+      const max = this.symbolContainer.children.length - 3;
 
       for (let i = 0; i < max; i++) {
         this.symbolContainer.firstChild.remove();

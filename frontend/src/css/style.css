@@ -35,9 +35,9 @@ body {
 #reels {
   display: flex;
   width: 100vw;
-  height: calc((4 / 5) * 100vw);
+  height: calc((3 / 5) * 100vw);
   max-height: calc(90vh - 50px - 40px);
-  max-width: calc((5 / 4) * (90vh - 50px - 40px));
+  max-width: calc((5 / 3) * (90vh - 50px - 40px));
 }
 
 .reel {
@@ -78,7 +78,7 @@ input[type="checkbox"] {
 
 #jackpot {
   color: #d5ad6d;
-  font-size: 40px;
+  font-size: 1pc;
   text-align: center;
 }
 
