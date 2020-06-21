@@ -1,0 +1,97 @@
+INPUT:
+[
+    [0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0]
+]
+
+::Posibilidades(lineas: array) => ::posibilidades([1,2,3,4,5]){
+    1. Crear las 120 posibiliadades de lineas ganadoras (20 lineas x 3posibilidades x 2 izquierda y derecha)
+    OUTPUT FUNCTION
+        [1] =>  [
+                    [0, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 1],
+                    [0, 0, 0, 0, 0]
+                ]
+        ...
+        ...
+        ...
+
+        RETURN posibilidades en base a las lineas
+}
+
+$elemento = {
+    elemento_id,
+    valor: {
+        3: xxx,
+        4: xxx,
+        5: xxx
+    }
+}
+
+
+obtenerCoincidencias(::Posibilidades($lineas), $tablero){
+    2. Determinar si encuentra las coincidencias linea por linea, por cada elemento
+        - Verificar que elementos se encuentran en la matriz dada 
+            - getElementosEnTablero() => [x, y, z,....]
+        - Recorrer elemento por elemento y hacer la verificación de coincidencia matriz[x][y] === elemento || comodin
+
+        foreach( getElementosEnTablero( $tablero ) => $elemento ){
+            foreach($posibilidades => $linea) {
+                $resultados[] = verificarCoincidencias($linea, $elemento){
+                    3. retornar las lineas de coincidencia que más aciertos tenga de izquierda o derecha
+                    return $aciertosDerecha > $actiertosIzquierda ? $aciertosDerecha : $actiertosIzquierda;
+                        - EJ: {
+                                4. Multiplicar el resultado de las lineas de coincidencia por el valor del elemento coincidente 
+                                ganancia: $elemento->valor[$totalApariciones]
+                                elemento: elemento,
+                                apariciones:
+                                            [0, 0, 0, 0, 0],
+                                            [1, 1, 1, 1, 1],
+                                            [0, 0, 0, 0, 0]
+                        }
+                }
+            }
+        }
+
+        return $resultados;
+
+}
+
+verificarCoincidencias($linea, $elemento, $tablero){
+    ¿cómo verificiar?
+    $coincide = false;
+    foreach($linea => $x as $cuadrante){
+        foreach($cuadrante => $y as $hayElemento){
+            if($hayElemento){
+                $coincide = $tablero[$x][$y] === $elemento || $tablero[$x][$y] === $comodin;
+            }
+        }
+    }
+    return $resultado{
+        ganancia: $coincide ? $elemento->valor[$totalApariciones] : 0,
+        elemento: elemento,
+        apariciones: $linea->apariciones;
+    };
+}
+
+
+
+5. Sumar el total del juego ganado
+totalGananciaJuego($resultados => $resultado) {
+    $total += $resultado->ganancia;
+}
+
+
+4. Determinar si la ganancia de la jugada es pagable
+if( !esPagable( totalGananciaJuego() ) ){
+    generarJuego();
+}
+
+hayBonus(){
+    obtenerCoincidencias($lineas, $juego){
+        - Si hay === 3 bonus, retornar 4 juegos (recursividad hacía la misma función hasta que traiga la sumatoria correspondiente a los juegos)
+        - Si hay === 4 bonus, retornar 8 juegos (recursividad hacía la misma función hasta que traiga la sumatoria correspondiente a los juegos)
+        - Si hay === 5 bonus, retornar 16 juegos (recursividad hacía la misma función hasta que traiga la sumatoria correspondiente a los juegos)
+    }    
+}
