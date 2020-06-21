@@ -26,12 +26,18 @@ class Maquina
         return new Tablero($tablero);
     }
 
-    public function test(): void
+    public function partida($apuesta, $lineas): array
     {
-        echo json_encode( $this->jugar( new Juego(0.5, 1) ) );
-        // foreach ($this->jugar( new Juego(0.5, 1) )['resultados']['ganancias'] as $resultado) {
-        //     $resultado->imprimir();
-        // }
+        $resultados = $this->jugar( new Juego($apuesta, $lineas) );
+        $gananciaTotal = Resultado::obtenerGananciaTotal($resultados);
+
+        echo "Ganancia Total: $gananciaTotal\n";
+        echo "============================================================\n";
+        
+        return [
+            'resultados' => $resultados,
+            'gananciaTotal' => $gananciaTotal,
+        ];
     }
     
     public function jugar(Juego $juego): array 
@@ -206,6 +212,27 @@ class Resultado
         echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\t Linea: " . $this->linea->numero . "\n";
         echo "============================================================\n";
     }
+
+    public static function obtenerGananciaTotal(array $resultados): float
+    {
+        $total = 0;
+
+        foreach ($resultados['resultados']['ganancias'] as $resultado) {
+            $total += $resultado->ganancia;
+        }
+
+        if( isset( $resultados['juegosExtra'] ) ) {
+            foreach ($resultados['juegosExtra'] as $juegoExtra) {
+                
+                foreach ($juegoExtra['resultados']['ganancias'] as $resultado) {
+                    $total += $resultado->ganancia;
+                }
+
+            }
+        }
+
+        return $total;
+    }
 }
 
 class Tablero
@@ -280,7 +307,7 @@ class TragaMonedasSimpsons
             new Elemento('nelson', [3 => 10, 4 => 15, 5 => 30], 'nelson.png'),
             new Elemento('milhouse', [3 => 15, 4 => 30, 5 => 50], 'milhouse.png'),
             new Elemento('comodin', [3 => 250, 4 => 500, 5 => 2000], 'comodin.png'),
-            new Elemento('bonus', [3 => 250, 4 => 500, 5 => 2000], 'bonus.png'),
+            new Elemento('bonus', [3 => 0, 4 => 0, 5 => 0], 'bonus.png'),
         ];
 
         $linea1 = [
@@ -334,11 +361,11 @@ class TragaMonedasSimpsons
         $this->maquina = new Maquina($linea1, $elementos);
     }
 
-    public function test(): void
+    public function test($apuesta, $lineas): void
     {
-        $this->maquina->test();
+        $this->maquina->partida($apuesta, $lineas);
     }
 }
 
 $simpsons = new TragaMonedasSimpsons();
-$simpsons->test();
+$simpsons->test(0.5, 1);
