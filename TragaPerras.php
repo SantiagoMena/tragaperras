@@ -28,18 +28,39 @@ class Maquina
 
     public function test(): void
     {
-        // var_dump( $this->jugar( new Juego(0.5, 1) ) );
-        foreach ($this->jugar( new Juego(0.5, 1) ) as $resultado) {
-            $resultado->imprimir();
-        }
+        echo json_encode( $this->jugar( new Juego(0.5, 1) ) );
+        // foreach ($this->jugar( new Juego(0.5, 1) )['resultados']['ganancias'] as $resultado) {
+        //     $resultado->imprimir();
+        // }
     }
     
     public function jugar(Juego $juego): array 
-    {
+    {   
+        if( $juego->esBonus ){
+            foreach ( $this->elementos as $key => $elemento ) {
+                if( $elemento->id === 'bonus' ){
+                    unset($this->elementos[$key]);
+                }
+            }
+        }
+        
         $tablero = $this->generarTableroAleatorio();
         $tablero->imprimir();
 
-        return $this->coincidenciasConsolidadas($tablero);
+        $resultadosConsolidados = $this->coincidenciasConsolidadas($tablero);
+        $resultados['resultados'] = $resultadosConsolidados;
+
+        // Si hay bonus en el tablero
+        if($resultadosConsolidados['bonus'] > 0) {
+            echo "Bonus: " . $resultadosConsolidados['bonus'] . "\n";
+            echo "============================================================\n";
+            for ($i=0; $i < $resultadosConsolidados['bonus']; $i++) { 
+                $juego->esBonus = TRUE;
+                $resultados['juegosExtra'][] = $this->jugar($juego);
+            }
+        }
+
+        return $resultados;
     }
 
     /**
@@ -49,7 +70,9 @@ class Maquina
     {
         // Obtengo los resultados de las coincidencias
         $resultados = $this->obtenerCoincidencias($tablero);
-        $consolidado = [];
+        $resultadosConsolidados['ganancias'] = [];
+        $resultadosConsolidados['tablero'] = $tablero;
+        $resultadosConsolidados['bonus'] = $tablero->obtenerBonus();
 
         // Recorro los resultados
         foreach ($resultados as $resultado) {
@@ -58,19 +81,24 @@ class Maquina
             // Verifico si hay ganancia
             if($resultado->ganancia > 0){
                 // Si el resultado de la linea ya fue asignado lo comparo
-                if( isset( $resultadoConsolidado[$numeroLinea] ) ){ 
-                    // Si es mayor lo asigno
-                    if( $consolidado[ $numeroLinea ]->ganancia > $resultado->ganancia ){
-                        $consolidado[ $numeroLinea ] = $resultado->ganancia;
+                if( isset( $resultadosConsolidados['ganancias'][$numeroLinea] ) ){ 
+                    // Si el resultado recorrido es mayor al anterior lo guardo
+                    if( $resultadosConsolidados['ganancias'][ $numeroLinea ]->ganancia < $resultado->ganancia ){
+                        $resultadosConsolidados['ganancias'][ $numeroLinea ] = $resultado;
                     }
                 } else {
                     // Si no está asignado lo asigno
-                    $consolidado[ $numeroLinea ] = $resultado;
+                    $resultadosConsolidados['ganancias'][ $numeroLinea ] = $resultado;
                 }
             }
         }
 
-        return $consolidado;
+        foreach ($resultadosConsolidados['ganancias'] as $resultado) {
+            $resultado->imprimir();
+        }
+
+        
+        return $resultadosConsolidados;
     }
 
     /**
@@ -112,12 +140,14 @@ class Juego
     public $apuesta;
     public $lineas;
     public $totalApuesta;
+    public $esBonus;
 
-    public function __construct(float $apuesta, int $lineas)
+    public function __construct(float $apuesta, int $lineas, bool $esBonus = FALSE)
     {
         $this->apuesta = $apuesta;
         $this->lineas = $lineas;
         $this->totalApuesta = $apuesta * $lineas;
+        $this->esBonus = $esBonus;
     }
 }
 
@@ -143,8 +173,8 @@ class Linea
         foreach($this->tablero as $i => $cuadrante){
             foreach($cuadrante as $j => $hayElemento){
                 if($hayElemento === 1){
-                    // Cheque de coincidencia con elemento o comodin
-                    $coincide = $coincide && ($tablero->elementos[$i][$j] === $elemento || $tablero->elementos[$i][$j]->id === 'comodin');
+                    // Cheque de coincidencia con elemento o comodin y no es un bonus
+                    $coincide = $coincide && ($tablero->elementos[$i][$j] === $elemento || $tablero->elementos[$i][$j]->id === 'comodin' && $tablero->elementos[$i][$j]->id !== 'bonus' );
                 }
             }
         }
@@ -173,7 +203,8 @@ class Resultado
 
     public function imprimir(): void
     {
-        echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\n";
+        echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\t Linea: " . $this->linea->numero . "\n";
+        echo "============================================================\n";
     }
 }
 
@@ -195,6 +226,7 @@ class Tablero
             }
             echo "] \n";
         }
+        echo "============================================================\n";
     }
 
     public function elementoEnJuego(): array
@@ -210,6 +242,29 @@ class Tablero
 
         return $elementos;
     }
+
+    public function obtenerBonus(): int
+    {
+        $total = 0;
+
+        foreach ($this->elementos as $cuadrante) {
+            foreach ($cuadrante as $elemento) {
+                if($elemento->id === 'bonus'){
+                    $total++;
+                }
+            }
+        }
+
+        if($total === 3) {
+            return 4;
+        } elseif($total === 4) {
+            return 8;
+        } elseif($total > 4) {
+            return 16;
+        }
+
+        return 0;
+    }
 }
 // VALIDAR SI ES PAGABLE
 // CREAR LOOP DE BONUS
@@ -224,7 +279,8 @@ class TragaMonedasSimpsons
             new Elemento('barnie', [3 => 10, 4 => 15, 5 => 20], 'barnie.png'),
             new Elemento('nelson', [3 => 10, 4 => 15, 5 => 30], 'nelson.png'),
             new Elemento('milhouse', [3 => 15, 4 => 30, 5 => 50], 'milhouse.png'),
-            new Elemento('comodin', [3 => 250, 4 => 500, 5 => 2000], 'milhouse.png'),
+            new Elemento('comodin', [3 => 250, 4 => 500, 5 => 2000], 'comodin.png'),
+            new Elemento('bonus', [3 => 250, 4 => 500, 5 => 2000], 'bonus.png'),
         ];
 
         $linea1 = [
