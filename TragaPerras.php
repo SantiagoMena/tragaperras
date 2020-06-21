@@ -134,14 +134,17 @@ class Linea
         $this->apariciones = $apariciones;
     }
 
+    /**
+     * Verificar coincidencias de elementos en base al tablero de la linea
+     */
     public function verificarCoincidencias(Elemento $elemento, Tablero $tablero): Resultado
     {
         $coincide = true;
         foreach($this->tablero as $i => $cuadrante){
             foreach($cuadrante as $j => $hayElemento){
                 if($hayElemento === 1){
-                    #FIXME: Agregar comprobación del comodin
-                    $coincide = $coincide && ($tablero->elementos[$i][$j] === $elemento);// || $tablero[$x][$y] === $comodin;
+                    // Cheque de coincidencia con elemento o comodin
+                    $coincide = $coincide && ($tablero->elementos[$i][$j] === $elemento || $tablero->elementos[$i][$j]->id === 'comodin');
                 }
             }
         }
@@ -170,7 +173,7 @@ class Resultado
 
     public function imprimir(): void
     {
-        echo "$this->ganancia \t " . $this->elemento->id . "\t" . $this->linea->apariciones . "\n";
+        echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\n";
     }
 }
 
@@ -208,7 +211,9 @@ class Tablero
         return $elementos;
     }
 }
-
+// VALIDAR SI ES PAGABLE
+// CREAR LOOP DE BONUS
+// VERIFICAR JACKPOTS
 class TragaMonedasSimpsons
 {
     public $maquina;
@@ -219,6 +224,7 @@ class TragaMonedasSimpsons
             new Elemento('barnie', [3 => 10, 4 => 15, 5 => 20], 'barnie.png'),
             new Elemento('nelson', [3 => 10, 4 => 15, 5 => 30], 'nelson.png'),
             new Elemento('milhouse', [3 => 15, 4 => 30, 5 => 50], 'milhouse.png'),
+            new Elemento('comodin', [3 => 250, 4 => 500, 5 => 2000], 'milhouse.png'),
         ];
 
         $linea1 = [
