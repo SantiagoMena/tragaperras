@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HTML 5 Slot Machine</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap@4.5.0/dist/css/bootstrap-reboot.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto+Condensed"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="slot">
+      <div id="game">
+        <div id="jackpots">
+          <div id="jackpot">Jackpot #1: <span id="jp">2000</span></div>
+          <div id="jackpot">Jackpot #2: <span id="jp">1000</span></div>
+          <div id="jackpot">Jackpot #3: <span id="jp">733</span></div>
+          <div id="jackpot">Jackpot #4: <span id="jp">544</span></div>
+          <div id="jackpot">Jackpot #5: <span id="jp">530</span></div>
+          <div id="jackpot">Jackpot #6: <span id="jp">50</span></div>
+          <div id="jackpot">Jackpot #7: <span id="jp">25</span></div>
+  
+        </div>
+        <div id="reels">
+          <div class="reel"></div>
+          <div class="reel"></div>
+          <div class="reel"></div>
+          <div class="reel"></div>
+          <div class="reel"></div>
+        </div>
+        <div id="lines">
+          <label class="line">25</label>
+          <label class="line">20</label>
+          <label class="line">10</label>
+          <label class="line">5</label>
+          <label class="line">1</label>
+        </div>
+
+      </div>
+      <div id="controls">
+        <button type="button" id="spin">SPIN</button>
+        <label>
+          <input type="checkbox" name="autoplay" id="autoplay" />
+          Autoplay
+        </label>
+      </div>
+    </div>
+    <script
+      crossorigin="anonymous"
+      src="https://polyfill.io/v3/polyfill.min.js?features=default%2CWebAnimations"
+    ></script>
+  </body>
+</html>
