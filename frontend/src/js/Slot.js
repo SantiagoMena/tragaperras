@@ -48,12 +48,9 @@ export default class Slot {
 
     partida.then((response) => {
       let { data } = response;
-      let { resultados: { resultados } } = data;
+      let { resultados: { resultados, juegosExtra }, gananciaTotal } = data;
       let { tablero } = resultados;
       let { elementos } = tablero;
-
-
-      console.log({elementos});
 
       this.nextSymbols = [
         [elementos[0][0].imagen, elementos[1][0].imagen, elementos[2][0].imagen],
@@ -68,7 +65,7 @@ export default class Slot {
           reel.renderSymbols(this.nextSymbols[reel.idx]);
           return reel.spin();
         })
-      ).then(() => this.onSpinEnd());
+      ).then(() => this.onSpinEnd({gananciaTotal, juegosExtra}));
 
       
     });
@@ -81,8 +78,14 @@ export default class Slot {
     console.log("SPIN START");
   }
 
-  onSpinEnd() {
+  onSpinEnd({gananciaTotal, juegosExtra}) {
     this.spinButton.disabled = false;
+
+    if( typeof juegosExtra !== 'undefined' ) {
+      alert(`Bonus! Tiene ${ juegosExtra.length } juegos extra!`);
+    }
+
+    alert(`Ganancia! Tiene ${ gananciaTotal } de ganancia total!`);
 
     console.log("SPIN END");
 
