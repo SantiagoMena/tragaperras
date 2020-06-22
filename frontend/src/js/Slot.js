@@ -49,7 +49,7 @@ export default class Slot {
     partida.then((response) => {
       let { data } = response;
       let { resultados: { resultados, juegosExtra }, gananciaTotal } = data;
-      let { tablero } = resultados;
+      let { tablero, ganancias } = resultados;
       let { elementos } = tablero;
 
       this.nextSymbols = [
@@ -65,7 +65,7 @@ export default class Slot {
           reel.renderSymbols(this.nextSymbols[reel.idx]);
           return reel.spin();
         })
-      ).then(() => this.onSpinEnd({gananciaTotal, juegosExtra}));
+      ).then(() => this.onSpinEnd({ganancias, gananciaTotal, juegosExtra}));
 
       
     });
@@ -78,18 +78,36 @@ export default class Slot {
     console.log("SPIN START");
   }
 
-  onSpinEnd({gananciaTotal, juegosExtra}) {
+  onSpinEnd({ganancias, gananciaTotal, juegosExtra}) {
     this.spinButton.disabled = false;
 
     if( typeof juegosExtra !== 'undefined' ) {
       alert(`Bonus! Tiene ${ juegosExtra.length } juegos extra!`);
     }
 
-    alert(`Ganancia! Tiene ${ gananciaTotal } de ganancia total!`);
+    this.imprimirGanancias({ganancias});
+    // alert(`Ganancia! Tiene ${ gananciaTotal } de ganancia total!`);
 
     console.log("SPIN END");
 
     if (this.autoPlayCheckbox.checked)
       return window.setTimeout(() => this.spin(), 200);
+  }
+
+  spinJuegosExtra({juegosExtra}) {
+
+  }
+
+  imprimirGanancias({ganancias}) {
+    console.log(ganancias);
+    console.log(Object.values(ganancias));
+
+    if( Object.values(ganancias).length > 0 ) {
+      Object.values(ganancias).forEach(gananciaObj => {
+        let { ganancia, elemento: { id }, linea: { numero, apariciones } } = gananciaObj;
+  
+        alert(`Ganaste: $${ ganancia } con el elemento "${ id }" en la linea #${ numero } con ${ apariciones } apariciones!`)
+      });
+    }
   }
 }
