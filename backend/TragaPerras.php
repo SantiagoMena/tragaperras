@@ -7,31 +7,44 @@ class Maquina
     private const COLUMNAS = 5;
     public $lineas;
     public $elementos;
+    public $jackpots;
+    public $porcentajePago;
 
-    public function __construct(array $lineas, array $elementos)
+    public function __construct(float $porcentajePago, array $lineas, array $elementos, array $jackpots)
     {
         $this->lineas = $lineas;
         $this->elementos = $elementos;
+        $this->jackpots = $jackpots;
+        $this->porcentajePago = $porcentajePago;
     }
 
-    private function generarTableroAleatorio(): Tablero
-    {
-        $filas = self::FILAS;
-        $columnas = self::COLUMNAS;
-
-        for ($i=0; $i < $filas; $i++) { 
-            for ($j=0; $j < $columnas; $j++) { 
-                $tablero[$i][$j] = $this->elementos[ random_int( 0, count( $this->elementos ) - 1 ) ];
-            }
-        }
-
-        return new Tablero($tablero);
-    }
 
     public function partida($apuesta, $lineas): array
     {
+        // Llenar jackpots
+
+        // Pagar jackpots
+        foreach ($this->jackpots as $jackpot) {
+            $ganancia = $jackpot->pagar();
+            if( $ganancia > 0 ) {
+                return [
+                    'resultados' => [
+                        'resultados' => [
+                            'tablero' => $jackpot->generarTablero($this->elementos),
+                            'ganancias' => []
+                        ],
+                    ],
+                    'jackpot' => true,
+                    'gananciaTotal' => $ganancia
+                ];
+            }
+        }
+
+        
         $resultados = $this->jugar( new Juego($apuesta, $lineas) );
         $gananciaTotal = Resultado::obtenerGananciaTotal($resultados);
+        
+        // Verificar si se puede pagar la apuesta, sino volver a jugar
 
         //echo "Ganancia Total: $gananciaTotal\n";
         //echo "============================================================\n";
@@ -52,7 +65,7 @@ class Maquina
             }
         }
         
-        $tablero = $this->generarTableroAleatorio();
+        $tablero = Tablero::generarTableroAleatorio($this->elementos, self::FILAS, self::COLUMNAS);
         $tablero->imprimir();
 
         $resultadosConsolidados = $this->coincidenciasConsolidadas($tablero);
@@ -294,94 +307,101 @@ class Tablero
 
         return 0;
     }
+
+
+    public static function generarTableroAleatorio(array $elementos, int $filas, int $columnas): Tablero
+    {
+        for ($i=0; $i < $filas; $i++) { 
+            for ($j=0; $j < $columnas; $j++) { 
+                $tablero[$i][$j] = $elementos[ random_int( 0, count( $elementos ) - 1 ) ];
+            }
+        }
+
+        return new Tablero($tablero);
+    }
 }
-// VALIDAR SI ES PAGABLE
-// CREAR LOOP DE BONUS
-// VERIFICAR JACKPOTS
 
-
-
-class TragaMonedasSimpsons
+// VERIFICAR JACKPOTS Y PAGARLOS
+class Jackpot
 {
-    public $maquina;
+    private const FILAS = 3;
+    private const COLUMNAS = 5;
 
-    public function __construct()
+    public $total;
+    public $saldoInicial;
+    public $limite;
+    public $elementos;
+    
+    public function __construct(float $saldoInicial, float $limite, int $elementos)
     {
-        $elementos = [
-            new Elemento('barnie', [3 => 10, 4 => 15, 5 => 20], 'barnie.png'),
-            new Elemento('nelson', [3 => 10, 4 => 15, 5 => 30], 'nelson.png'),
-            new Elemento('milhouse', [3 => 15, 4 => 30, 5 => 50], 'milhouse.png'),
-            new Elemento('comodin', [3 => 250, 4 => 500, 5 => 2000], 'comodin.png'),
-            new Elemento('bonus', [3 => 0, 4 => 0, 5 => 0], 'bonus.png'),
-        ];
-
-        $linea1 = [
-            new Linea(
-                [
-                    [0, 0, 0, 0, 0],
-                    [1, 1, 1, 0, 0],
-                    [0, 0, 0, 0, 0],
-                ], //Tablero
-                1, //Numero
-                3 //Apariciones
-            ),
-            new Linea(
-                 [
-                     [0, 0, 0, 0, 0],
-                     [0, 0, 1, 1, 1],
-                     [0, 0, 0, 0, 0],
-                 ], //Tablero
-                 1, //Numero
-                 3 //Apariciones
-             ),
-            new Linea(
-                  [
-                      [0, 0, 0, 0, 0],
-                      [1, 1, 1, 1, 0],
-                      [0, 0, 0, 0, 0],
-                  ], //Tablero
-                  1, //Numero
-                  4 //Apariciones
-              ),
-            new Linea(
-                [
-                    [0, 0, 0, 0, 0],
-                    [0, 1, 1, 1, 1],
-                    [0, 0, 0, 0, 0],
-                ], //Tablero
-                1, //Numero
-                4 //Apariciones
-            ),
-            new Linea(
-                [
-                    [0, 0, 0, 0, 0],
-                    [1, 1, 1, 1, 1],
-                    [0, 0, 0, 0, 0],
-                ], //Tablero
-                1, //Numero
-                5 //Apariciones
-            ),
-        ];
-
-        $this->maquina = new Maquina($linea1, $elementos);
+        $this->total = $saldoInicial;
+        $this->saldoInicial = $saldoInicial;
+        $this->limite = $limite;
+        $this->elementos = $elementos;
     }
 
-    public function partida($apuesta, $lineas): array
+    public function cargar(float $saldo): void
     {
-        return $this->maquina->partida($apuesta, $lineas);
+        $this->total += $saldo;
     }
 
-    public function test($apuesta, $lineas): void
+    public function pagar(): float
     {
-        $this->maquina->partida($apuesta, $lineas);
+        if( $this->total >= $this->limite ){
+            $total = $this->total;
+            $this->total = $this->saldoInicial;
+
+            return $total;
+        }
+
+        return 0;
     }
+
+    public function generarTablero(array $elementos): Tablero
+    {
+        foreach ( $elementos as $key => $elemento ) {
+            if( $elemento->id === 'bonus' ){
+                unset($elementos[$key]);
+            }
+
+            if( $elemento->id === 'comodin' ){
+                unset($elementos[$key]);
+            }
+        }
+
+        $tablero = Tablero::generarTableroAleatorio($elementos, self::FILAS, self::COLUMNAS);
+
+        $elementoJackpot = new Elemento('jackpot', [], 'jackpot');
+
+        while ($this->elementos > 0) {
+            $randomFila = random_int( 0, self::FILAS - 1 );
+            $randomColumna = random_int( 0, self::COLUMNAS - 1 );
+
+            if( $tablero->elementos[ $randomFila ][ $randomColumna ]->id === 'jackpot' ){
+                continue;
+            } else {
+                $tablero->elementos[ $randomFila ][ $randomColumna ] = $elementoJackpot;
+                $this->elementos--;
+            }
+        }
+
+        return $tablero;
+    }
+
+
 }
 
-// $simpsons = new TragaMonedasSimpsons();
-// $simpsons->test(0.5, 1);
+// VALIDAR SI ES PAGABLE
+// CREAR LOGICA DE CUANTAS LINEAS ENTRAN EN JUEGO
+// DIVIDIR LA LOGICA EN ARCHIVOS
 
-
-
+class Jugador
+{
+    public $totalApuestas;
+    public $totalGanancias;
+    public $totalPerdidas;
+    
+}
 
 
 class TragaMonedasStarWars
@@ -391,11 +411,11 @@ class TragaMonedasStarWars
     public function __construct()
     {
         $elementos = [
-            new Elemento('at_at', [3 => 10, 4 => 15, 5 => 20], 'at_at'),
-            new Elemento('darth_vader', [3 => 10, 4 => 15, 5 => 20], 'darth_vader'),
-            new Elemento('c3po', [3 => 10, 4 => 15, 5 => 30], 'c3po'),
-            new Elemento('falcon', [3 => 15, 4 => 30, 5 => 50], 'falcon'),
-            new Elemento('r2d2', [3 => 10, 4 => 15, 5 => 20], 'r2d2'),
+            // new Elemento('at_at', [3 => 10, 4 => 15, 5 => 20], 'at_at'),
+            // new Elemento('darth_vader', [3 => 10, 4 => 15, 5 => 20], 'darth_vader'),
+            // new Elemento('c3po', [3 => 10, 4 => 15, 5 => 30], 'c3po'),
+            // new Elemento('falcon', [3 => 15, 4 => 30, 5 => 50], 'falcon'),
+            // new Elemento('r2d2', [3 => 10, 4 => 15, 5 => 20], 'r2d2'),
             new Elemento('stormtrooper', [3 => 10, 4 => 15, 5 => 30], 'stormtrooper'),
             new Elemento('tie_ln', [3 => 15, 4 => 30, 5 => 50], 'tie_ln'),
 
@@ -452,7 +472,11 @@ class TragaMonedasStarWars
             ),
         ];
 
-        $this->maquina = new Maquina($linea1, $elementos);
+        $jackpots = [
+            new Jackpot(100, 1000, 7)
+        ];
+
+        $this->maquina = new Maquina(100, $linea1, $elementos, $jackpots);
     }
 
     public function partida($apuesta, $lineas): array
