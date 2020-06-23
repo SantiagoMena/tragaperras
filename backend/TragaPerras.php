@@ -5,13 +5,15 @@ class Maquina
 {
     private const FILAS = 3;
     private const COLUMNAS = 5;
+    public $jugador;
     public $lineas;
     public $elementos;
     public $jackpots;
     public $porcentajePago;
 
-    public function __construct(float $porcentajePago, array $lineas, array $elementos, array $jackpots)
+    public function __construct(Jugador $jugador, float $porcentajePago, array $lineas, array $elementos, array $jackpots)
     {
+        $this->jugador = $jugador;
         $this->lineas = $lineas;
         $this->elementos = $elementos;
         $this->jackpots = $jackpots;
@@ -27,6 +29,8 @@ class Maquina
         foreach ($this->jackpots as $jackpot) {
             $ganancia = $jackpot->pagar();
             if( $ganancia > 0 ) {
+                echo "Jackpot: $ganancia\n";
+                echo "============================================================\n";
                 return [
                     'resultados' => [
                         'resultados' => [
@@ -41,13 +45,20 @@ class Maquina
         }
 
         
-        $resultados = $this->jugar( new Juego($apuesta, $lineas) );
-        $gananciaTotal = Resultado::obtenerGananciaTotal($resultados);
-        
         // Verificar si se puede pagar la apuesta, sino volver a jugar
+        $gananciaTotal = 0;
+        $ressultados = [];
+        $pagoMaximo = $this->jugador->totalPerdidas * $this->porcentajePago / 100;
 
-        //echo "Ganancia Total: $gananciaTotal\n";
-        //echo "============================================================\n";
+        while ( empty($resultados) || $gananciaTotal > $pagoMaximo ) {
+            $resultados = $this->jugar( new Juego($apuesta, $lineas) );
+            $gananciaTotal = Resultado::obtenerGananciaTotal($resultados);
+            echo "Ganancia no pagada: $gananciaTotal\n";
+            echo "============================================================\n";
+        }
+
+        echo "Ganancia Total: $gananciaTotal\n";
+        echo "============================================================\n";
         
         return [
             'resultados' => $resultados,
@@ -73,8 +84,8 @@ class Maquina
 
         // Si hay bonus en el tablero
         if($resultadosConsolidados['bonus'] > 0) {
-            //echo "Bonus: " . $resultadosConsolidados['bonus'] . "\n";
-            //echo "============================================================\n";
+            echo "Bonus: " . $resultadosConsolidados['bonus'] . "\n";
+            echo "============================================================\n";
             for ($i=0; $i < $resultadosConsolidados['bonus']; $i++) { 
                 $juego->esBonus = TRUE;
                 $resultados['juegosExtra'][] = $this->jugar($juego);
@@ -224,8 +235,8 @@ class Resultado
 
     public function imprimir(): void
     {
-        //echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\t Linea: " . $this->linea->numero . "\n";
-        //echo "============================================================\n";
+        echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\t Linea: " . $this->linea->numero . "\n";
+        echo "============================================================\n";
     }
 
     public static function obtenerGananciaTotal(array $resultados): float
@@ -262,13 +273,13 @@ class Tablero
     public function imprimir(): void
     {
         foreach ($this->elementos as $cuadrante) {
-            //echo "[";
+            echo "[";
             foreach ($cuadrante as $elemento) {
-                //echo "\t $elemento->id \t";
+                echo "\t $elemento->id \t";
             }
-            //echo "] \n";
+            echo "] \n";
         }
-        //echo "============================================================\n";
+        echo "============================================================\n";
     }
 
     public function elementoEnJuego(): array
@@ -401,6 +412,12 @@ class Jugador
     public $totalGanancias;
     public $totalPerdidas;
     
+    public function __construct(float $totalApuestas, float $totalGanancias, $totalPerdidas)
+    {
+        $this->totalApuestas = $totalApuestas;
+        $this->totalGanancias = $totalGanancias;
+        $this->totalPerdidas = $totalPerdidas;
+    }
 }
 
 
@@ -475,8 +492,10 @@ class TragaMonedasStarWars
         $jackpots = [
             new Jackpot(100, 1000, 7)
         ];
+        
+        $jugador = new Jugador(100, 100, 100);
 
-        $this->maquina = new Maquina(100, $linea1, $elementos, $jackpots);
+        $this->maquina = new Maquina($jugador, 10, $linea1, $elementos, $jackpots);
     }
 
     public function partida($apuesta, $lineas): array
