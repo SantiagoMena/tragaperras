@@ -6,9 +6,9 @@ include 'TragaPerras.php';
 $apuesta = isset($_GET['apuesta']) ? $_GET['apuesta'] : 0.5;
 $lineas = isset($_GET['lineas']) ? $_GET['lineas'] : 1;
 
-$starWars = new TragaMonedasStarWars();
+$starWars = new TragaMonedasStarWars($lineas);
 
-$resultado = $starWars->partida($apuesta, $lineas);
+$resultado = $starWars->partida($apuesta);
 
 if (isset($_SERVER['HTTP_ORIGIN'])) {
     // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one

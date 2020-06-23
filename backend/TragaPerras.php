@@ -21,7 +21,7 @@ class Maquina
     }
 
 
-    public function partida($apuesta, $lineas): array
+    public function partida($apuesta): array
     {
         // Llenar jackpots
 
@@ -29,8 +29,8 @@ class Maquina
         foreach ($this->jackpots as $jackpot) {
             $ganancia = $jackpot->pagar();
             if( $ganancia > 0 ) {
-                echo "Jackpot: $ganancia\n";
-                echo "============================================================\n";
+                //echo "Jackpot: $ganancia\n";
+                //echo "============================================================\n";
                 return [
                     'resultados' => [
                         'resultados' => [
@@ -51,14 +51,17 @@ class Maquina
         $pagoMaximo = $this->jugador->totalPerdidas * $this->porcentajePago / 100;
 
         while ( empty($resultados) || $gananciaTotal > $pagoMaximo ) {
-            $resultados = $this->jugar( new Juego($apuesta, $lineas) );
+            if( !empty($resultados) && $gananciaTotal > 0 ) {
+                //echo "Ganancia no pagada: $gananciaTotal\n";
+                //echo "============================================================\n";
+            }
+            
+            $resultados = $this->jugar( new Juego($apuesta, count($this->lineas)) );
             $gananciaTotal = Resultado::obtenerGananciaTotal($resultados);
-            echo "Ganancia no pagada: $gananciaTotal\n";
-            echo "============================================================\n";
         }
 
-        echo "Ganancia Total: $gananciaTotal\n";
-        echo "============================================================\n";
+        //echo "Ganancia Total: $gananciaTotal\n";
+        //echo "============================================================\n";
         
         return [
             'resultados' => $resultados,
@@ -84,8 +87,8 @@ class Maquina
 
         // Si hay bonus en el tablero
         if($resultadosConsolidados['bonus'] > 0) {
-            echo "Bonus: " . $resultadosConsolidados['bonus'] . "\n";
-            echo "============================================================\n";
+            //echo "Bonus: " . $resultadosConsolidados['bonus'] . "\n";
+            //echo "============================================================\n";
             for ($i=0; $i < $resultadosConsolidados['bonus']; $i++) { 
                 $juego->esBonus = TRUE;
                 $resultados['juegosExtra'][] = $this->jugar($juego);
@@ -217,6 +220,122 @@ class Linea
             $this
         );
     }
+
+    public static function getLineas(int $numeroLineas): array
+    {
+        $numeroLineas = $numeroLineas <= 0 ? 1 : $numeroLineas;
+
+        $totalLineas = [
+            [
+                // Linea #1
+                new Linea(
+                    [
+                        [0, 0, 0, 0, 0],
+                        [1, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    1, //Numero
+                    3 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    1, //Numero
+                    3 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    1, //Numero
+                    4 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    1, //Numero
+                    4 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    1, //Numero
+                    5 //Apariciones
+                ),
+            ],
+            [
+                // Lineas #2
+                new Linea(
+                    [
+                        [1, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    2, //Numero
+                    3 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    2, //Numero
+                    3 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    2, //Numero
+                    4 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [0, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    2, //Numero
+                    4 //Apariciones
+                ),
+                new Linea(
+                    [
+                        [1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ], //Tablero
+                    2, //Numero
+                    5 //Apariciones
+                ),
+            ]
+        ];
+
+        $lineas = [];
+        
+        for ($i=0; $i < $numeroLineas; $i++) { 
+            if( isset($totalLineas[$i]) ){
+                foreach ($totalLineas[$i] as $linea) {
+                    array_push( $lineas, $linea );
+                }
+            }
+        }
+
+        return $lineas;
+    }
 }
 
 class Resultado
@@ -235,8 +354,8 @@ class Resultado
 
     public function imprimir(): void
     {
-        echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\t Linea: " . $this->linea->numero . "\n";
-        echo "============================================================\n";
+        //echo "Ganancia: $this->ganancia \t Ficha: " . $this->elemento->id . "\t Apariciones: " . $this->linea->apariciones . "\t Linea: " . $this->linea->numero . "\n";
+        //echo "============================================================\n";
     }
 
     public static function obtenerGananciaTotal(array $resultados): float
@@ -273,13 +392,13 @@ class Tablero
     public function imprimir(): void
     {
         foreach ($this->elementos as $cuadrante) {
-            echo "[";
+            //echo "[";
             foreach ($cuadrante as $elemento) {
-                echo "\t $elemento->id \t";
+                //echo "\t $elemento->id \t";
             }
-            echo "] \n";
+            //echo "] \n";
         }
-        echo "============================================================\n";
+        //echo "============================================================\n";
     }
 
     public function elementoEnJuego(): array
@@ -425,69 +544,23 @@ class TragaMonedasStarWars
 {
     public $maquina;
 
-    public function __construct()
+    public function __construct(int $numeroLineas)
     {
         $elementos = [
-            // new Elemento('at_at', [3 => 10, 4 => 15, 5 => 20], 'at_at'),
-            // new Elemento('darth_vader', [3 => 10, 4 => 15, 5 => 20], 'darth_vader'),
-            // new Elemento('c3po', [3 => 10, 4 => 15, 5 => 30], 'c3po'),
-            // new Elemento('falcon', [3 => 15, 4 => 30, 5 => 50], 'falcon'),
-            // new Elemento('r2d2', [3 => 10, 4 => 15, 5 => 20], 'r2d2'),
+            // new Elemento('at_at', [3 => 60, 4 => 80, 5 => 150], 'at_at'),
+            // new Elemento('darth_vader', [3 => 50, 4 => 70, 5 => 140], 'darth_vader'),
+            // new Elemento('c3po', [3 => 40, 4 => 60, 5 => 80], 'c3po'),
+            // new Elemento('falcon', [3 => 30, 4 => 50, 5 => 70], 'falcon'),
+            new Elemento('r2d2', [3 => 15, 4 => 30, 5 => 50], 'r2d2'),
             new Elemento('stormtrooper', [3 => 10, 4 => 15, 5 => 30], 'stormtrooper'),
-            new Elemento('tie_ln', [3 => 15, 4 => 30, 5 => 50], 'tie_ln'),
+            new Elemento('tie_ln', [3 => 10, 4 => 15, 5 => 20], 'tie_ln'),
 
 
             new Elemento('comodin', [3 => 250, 4 => 500, 5 => 2000], 'yoda'),
             new Elemento('bonus', [3 => 0, 4 => 0, 5 => 0], 'death_star'),
         ];
 
-        $linea1 = [
-            new Linea(
-                [
-                    [0, 0, 0, 0, 0],
-                    [1, 1, 1, 0, 0],
-                    [0, 0, 0, 0, 0],
-                ], //Tablero
-                1, //Numero
-                3 //Apariciones
-            ),
-            new Linea(
-                 [
-                     [0, 0, 0, 0, 0],
-                     [0, 0, 1, 1, 1],
-                     [0, 0, 0, 0, 0],
-                 ], //Tablero
-                 1, //Numero
-                 3 //Apariciones
-             ),
-            new Linea(
-                  [
-                      [0, 0, 0, 0, 0],
-                      [1, 1, 1, 1, 0],
-                      [0, 0, 0, 0, 0],
-                  ], //Tablero
-                  1, //Numero
-                  4 //Apariciones
-              ),
-            new Linea(
-                [
-                    [0, 0, 0, 0, 0],
-                    [0, 1, 1, 1, 1],
-                    [0, 0, 0, 0, 0],
-                ], //Tablero
-                1, //Numero
-                4 //Apariciones
-            ),
-            new Linea(
-                [
-                    [0, 0, 0, 0, 0],
-                    [1, 1, 1, 1, 1],
-                    [0, 0, 0, 0, 0],
-                ], //Tablero
-                1, //Numero
-                5 //Apariciones
-            ),
-        ];
+        $lineas = Linea::getLineas(20);
 
         $jackpots = [
             new Jackpot(100, 1000, 7)
@@ -495,16 +568,11 @@ class TragaMonedasStarWars
         
         $jugador = new Jugador(100, 100, 100);
 
-        $this->maquina = new Maquina($jugador, 10, $linea1, $elementos, $jackpots);
+        $this->maquina = new Maquina($jugador, 50, $lineas, $elementos, $jackpots);
     }
 
-    public function partida($apuesta, $lineas): array
+    public function partida($apuesta): array
     {
-        return $this->maquina->partida($apuesta, $lineas);
-    }
-
-    public function test($apuesta, $lineas): void
-    {
-        $this->maquina->partida($apuesta, $lineas);
+        return $this->maquina->partida($apuesta);
     }
 }
