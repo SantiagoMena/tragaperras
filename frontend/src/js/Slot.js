@@ -44,7 +44,7 @@ export default class Slot {
 
     this.currentSymbols = this.nextSymbols;
 
-    let partida = axios.get('http://localhost:8081', {
+    let partida = axios.get('http://desligar.me:8081', {
       params: {
         apuesta: document.getElementById('apuesta').value,
         lineas: document.getElementById('lineas').value,
