@@ -1,7 +1,7 @@
 const cache = {};
 
 export default class Symbol {
-  constructor(name = Symbol.random()) {
+  constructor(name = Symbol.random(), className = "icon-class") {
     this.name = name;
 
     if (cache[name]) {
@@ -12,7 +12,10 @@ export default class Symbol {
 
       cache[name] = this.img;
     }
+
+    this.img.classList.add(className);
   }
+  
 
   static preload() {
     Symbol.symbols.forEach((symbol) => new Symbol(symbol));
