@@ -52,6 +52,7 @@ export default class Slot {
       let { tablero, ganancias } = resultados;
       let { elementos } = tablero;
 
+      console.log(JSON.stringify(ganancias));
       this.nextSymbols = [
         [elementos[0][0].imagen, elementos[1][0].imagen, elementos[2][0].imagen],
         [elementos[0][1].imagen, elementos[1][1].imagen, elementos[2][1].imagen],
@@ -128,15 +129,34 @@ export default class Slot {
   }
 
   imprimirGanancias({ganancias}) {
-    console.log(ganancias);
-    console.log(Object.values(ganancias));
+    // console.log(ganancias);
+    // console.log(Object.values(ganancias));
+    let objGanancias = Object.values(ganancias);
 
-    if( Object.values(ganancias).length > 0 ) {
-      Object.values(ganancias).forEach(gananciaObj => {
+    if( objGanancias.length > 0 ) {
+      this.animarGanador(objGanancias);
+
+      objGanancias.forEach(gananciaObj => {
         let { ganancia, elemento: { id }, linea: { numero, apariciones } } = gananciaObj;
   
         alert(`Ganaste: $${ ganancia } con el elemento "${ id }" en la linea #${ numero } con ${ apariciones } apariciones!`)
       });
     }
+  }
+
+  animarGanador(ganancias) {
+    ganancias.forEach(ganancia => {
+      let linea = ganancia.linea;
+      let tablero = linea.tablero;
+        
+      tablero.forEach((fila, filaId) => {
+          fila.forEach((columna, columnaId) => {
+            if(columna === 1) {
+              document.getElementsByClassName(`fila-${ filaId }-columna-${ columnaId }`)[0].classList.add('animate__animated');
+              document.getElementsByClassName(`fila-${ filaId }-columna-${ columnaId }`)[0].classList.add('animate__flash');
+            }
+          })
+      })
+    });  
   }
 }
