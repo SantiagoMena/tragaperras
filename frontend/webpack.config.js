@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
-  entry: ["./src/js/index.js", "./src/css/style.css"],
+  entry: ["./src/js/index.js", "./src/css/style.css", "./src/css/animate.min.css"],
   output: {
     filename: "bundle.[contenthash].js",
     path: path.resolve(__dirname, "dist"),

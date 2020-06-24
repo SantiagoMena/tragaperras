@@ -40,13 +40,16 @@ export default class Reel {
 
   renderSymbols(nextSymbols) {
     const fragment = document.createDocumentFragment();
-
+    
     for (let i = 3; i < 3 + Math.floor(this.factor) * 10; i++) {
+      let j = i - Math.floor(this.factor) * 10;
       const icon = new Symbol(
         i >= 10 * Math.floor(this.factor) - 2
-          ? nextSymbols[i - Math.floor(this.factor) * 10]
-          : undefined
+          ? nextSymbols[j]
+          : undefined,
+        `fila-${ j }-columna-${ this.idx }`
       );
+      
       fragment.appendChild(icon.img);
     }
 
