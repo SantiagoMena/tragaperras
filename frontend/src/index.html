@@ -15,13 +15,38 @@
     <div id="slot">
       <div id="game">
         <div id="jackpots">
-          <div id="jackpot">Jackpot #1: <span id="jp">2000</span></div>
-          <div id="jackpot">Jackpot #2: <span id="jp">1000</span></div>
-          <div id="jackpot">Jackpot #3: <span id="jp">733</span></div>
-          <div id="jackpot">Jackpot #4: <span id="jp">544</span></div>
-          <div id="jackpot">Jackpot #5: <span id="jp">530</span></div>
-          <div id="jackpot">Jackpot #6: <span id="jp">50</span></div>
-          <div id="jackpot">Jackpot #7: <span id="jp">25</span></div>
+          <div class="variable">
+            apuesta: <br>
+            <input type="number" id="apuesta" value="0.5" min="0.5" onchange="calcularApuestaTotal()">
+          </div>
+          <div class="variable">
+            lineas: <br>
+            <input type="number" id="lineas" value="1" min="1" max="20" onchange="calcularApuestaTotal()">
+          </div>
+          <div class="variable">
+            apuesta total: <br>
+            <input type="number" id="apuestaTotal" value="0.5" disabled>
+          </div>
+          <div class="variable">
+            saldoInicialJackpot: <br>
+            <input type="number" id="saldoInicialJackpot" value="100">
+          </div>
+          <div class="variable">
+            saldoLimiteJackPot: <br>
+            <input type="number" id="saldoLimiteJackPot" value="1000">
+          </div>
+          <div class="variable">
+            elementosJackpot: <br>
+            <input type="number" id="elementosJackpot" value="7">
+          </div>
+          <div class="variable">
+            apuestasJugador: <br>
+            <input type="number" id="apuestasJugador" value="0">
+          </div>
+          <div class="variable">
+            gananciasJugador: <br>
+            <input type="number" id="gananciasJugador" value="0">
+          </div>
   
         </div>
         <div id="reels">
@@ -32,7 +57,7 @@
           <div class="reel"></div>
         </div>
         <div id="lines">
-          <label class="line">2</label>
+          <!-- <label class="line">2</label>
           <label class="line">4</label>
           <label class="line">1</label>
           <label class="line">5</label>
@@ -41,7 +66,7 @@
           <label class="line">4</label>
           <label class="line">1</label>
           <label class="line">5</label>
-          <label class="line">3</label>
+          <label class="line">3</label> -->
         </div>
 
       </div>
@@ -57,5 +82,14 @@
       crossorigin="anonymous"
       src="https://polyfill.io/v3/polyfill.min.js?features=default%2CWebAnimations"
     ></script>
+    <script>
+      function calcularApuestaTotal() {
+        apuestaTotal = document.getElementById('apuestaTotal');
+        apuesta = document.getElementById('apuesta').value;
+        lineas = document.getElementById('lineas').value;
+
+        apuestaTotal.value = apuesta * lineas;
+      }
+    </script>
   </body>
 </html>

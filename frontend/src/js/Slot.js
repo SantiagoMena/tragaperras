@@ -44,7 +44,17 @@ export default class Slot {
 
     this.currentSymbols = this.nextSymbols;
 
-    let partida = axios.get('http://localhost:8081');
+    let partida = axios.get('http://localhost:8081', {
+      params: {
+        apuesta: document.getElementById('apuesta').value,
+        lineas: document.getElementById('lineas').value,
+        saldoInicialJackpot: document.getElementById('saldoInicialJackpot').value,
+        saldoLimiteJackPot: document.getElementById('saldoLimiteJackPot').value,
+        elementosJackpot: document.getElementById('elementosJackpot').value,
+        apuestasJugador: document.getElementById('apuestasJugador').value,
+        gananciasJugador: document.getElementById('gananciasJugador').value,
+      }
+    });
 
     partida.then((response) => {
       let { data } = response;
@@ -52,7 +62,8 @@ export default class Slot {
       let { tablero, ganancias } = resultados;
       let { elementos } = tablero;
 
-      console.log(JSON.stringify(ganancias));
+      this.sumarApuestasJugador(document.getElementById('apuestaTotal').value);
+      
       this.nextSymbols = [
         [elementos[0][0].imagen, elementos[1][0].imagen, elementos[2][0].imagen],
         [elementos[0][1].imagen, elementos[1][1].imagen, elementos[2][1].imagen],
@@ -139,9 +150,20 @@ export default class Slot {
       objGanancias.forEach(gananciaObj => {
         let { ganancia, elemento: { id }, linea: { numero, apariciones } } = gananciaObj;
   
+        this.sumarGananciasJugador(ganancia);
         alert(`Ganaste: $${ ganancia } con el elemento "${ id }" en la linea #${ numero } con ${ apariciones } apariciones!`)
       });
     }
+  }
+
+  sumarApuestasJugador(apuesta) {
+    let apuestasJugador = document.getElementById('apuestasJugador');
+    apuestasJugador.value = parseFloat(apuestasJugador.value) + parseFloat(apuesta);
+  }
+  
+  sumarGananciasJugador(ganancia) {
+    let gananciasJugador = document.getElementById('gananciasJugador');
+    gananciasJugador.value = parseFloat(gananciasJugador.value) + parseFloat(ganancia);
   }
 
   animarGanador(ganancias) {

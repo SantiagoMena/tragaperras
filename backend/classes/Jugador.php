@@ -7,10 +7,10 @@ class Jugador
     public $totalGanancias;
     public $totalPerdidas;
     
-    public function __construct(float $totalApuestas, float $totalGanancias, $totalPerdidas)
+    public function __construct(float $totalApuestas, float $totalGanancias)
     {
         $this->totalApuestas = $totalApuestas;
         $this->totalGanancias = $totalGanancias;
-        $this->totalPerdidas = $totalPerdidas;
+        $this->totalPerdidas = $totalApuestas - $totalGanancias;
     }
 }

@@ -89,3 +89,11 @@ input[type="checkbox"] {
 #slot.inverted .reel > .icons > img {
   transform: scaleY(-1);
 }
+
+.variable {
+  color: white;
+  font-size: 1pc;
+}
+.variable input {
+  width: 100px;
+}
