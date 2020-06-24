@@ -10,7 +10,7 @@ class TragaMonedasStarWars
 {
     public $maquina;
 
-    public function __construct(int $numeroLineas)
+    public function __construct(int $numeroLineas, array $jackpots, Jugador $jugador)
     {
         $elementos = [
             new Elemento('at_at', [3 => 60, 4 => 80, 5 => 150], 'at_at'),
@@ -28,17 +28,25 @@ class TragaMonedasStarWars
 
         $lineas = Linea::getLineas($numeroLineas);
 
-        $jackpots = [
-            new Jackpot(100, 1000, 7)
-        ];
-        
-        $jugador = new Jugador(100, 100, 100000);
-
         $this->maquina = new Maquina($jugador, 100, $lineas, $elementos, $jackpots);
     }
 
-    public function partida($apuesta): array
+    public function partida(float $apuesta): array
     {
         return $this->maquina->partida($apuesta);
+    }
+
+    public static function probar(int $numeroLineas, float $apuesta, float $saldoInicialJackpot, float $saldoLimiteJackPot, int $elementosJackpot, float $apuestasJugador, float $gananciasJugador): array
+    {
+
+        $jackpots = [
+            new Jackpot($saldoInicialJackpot, $saldoLimiteJackPot, $elementosJackpot)
+        ];
+        
+        $jugador = new Jugador($apuestasJugador, $gananciasJugador);
+
+        $maquina = new self($numeroLineas, $jackpots, $jugador);
+
+        return $maquina->partida($apuesta);
     }
 }

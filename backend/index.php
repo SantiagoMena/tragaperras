@@ -7,10 +7,15 @@ use Tragaperras\Maquinas\TragaMonedasStarWars;
 
 $apuesta = isset($_GET['apuesta']) ? $_GET['apuesta'] : 0.5;
 $lineas = isset($_GET['lineas']) ? $_GET['lineas'] : 20;
+$saldoInicialJackpot = isset($_GET['saldoInicialJackpot']) ? $_GET['saldoInicialJackpot'] : 100;
+$saldoLimiteJackPot = isset($_GET['saldoLimiteJackPot']) ? $_GET['saldoLimiteJackPot'] : 1000;
+$elementosJackpot = isset($_GET['elementosJackpot']) ? $_GET['elementosJackpot'] : 7;
+$apuestasJugador = isset($_GET['apuestasJugador']) ? $_GET['apuestasJugador'] : 100;
+$gananciasJugador = isset($_GET['gananciasJugador']) ? $_GET['gananciasJugador'] : 0;
 
-$starWars = new TragaMonedasStarWars($lineas);
-
-$resultado = $starWars->partida($apuesta);
+$resultado = TragaMonedasStarWars::probar($lineas, $apuesta, $saldoInicialJackpot, $saldoLimiteJackPot, $elementosJackpot, $apuestasJugador, $gananciasJugador);
+// $starWars = new TragaMonedasStarWars($lineas);
+// $resultado = $starWars->partida($apuesta);
 
 if (isset($_SERVER['HTTP_ORIGIN'])) {
     // Decide if the origin in $_SERVER['HTTP_ORIGIN'] is one

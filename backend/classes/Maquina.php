@@ -48,7 +48,8 @@ class Maquina
         // Verificar si se puede pagar la apuesta, sino volver a jugar
         $gananciaTotal = 0;
         $ressultados = [];
-        $pagoMaximo = $this->jugador->totalPerdidas * $this->porcentajePago / 100;
+        // Si las perdidas son negativas, quiere decir que ha ganado demasiado, así que el pago maximo es 0
+        $pagoMaximo = $this->jugador->totalPerdidas < 0 ?  0 : ( $this->jugador->totalPerdidas * $this->porcentajePago / 100 );
 
         while ( empty($resultados) || $gananciaTotal > $pagoMaximo ) {
             if( !empty($resultados) && $gananciaTotal > 0 ) {
