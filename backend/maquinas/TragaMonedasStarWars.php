@@ -26,7 +26,7 @@ class TragaMonedasStarWars
             new Elemento('bonus', [3 => 0, 4 => 0, 5 => 0], 'death_star'),
         ];
 
-        $lineas = Linea::getLineas(20);
+        $lineas = Linea::getLineas($numeroLineas);
 
         $jackpots = [
             new Jackpot(100, 1000, 7)
