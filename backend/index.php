@@ -1,7 +1,9 @@
 <?php
 
-namespace Tragaperras;
-include 'TragaPerras.php';
+include './classes/TragaPerras.php';
+include './maquinas/TragaMonedasStarWars.php';
+
+use Tragaperras\Maquinas\TragaMonedasStarWars;
 
 $apuesta = isset($_GET['apuesta']) ? $_GET['apuesta'] : 0.5;
 $lineas = isset($_GET['lineas']) ? $_GET['lineas'] : 1;
